@@ -19,247 +19,252 @@
 
 (function () {
 
-function getPlayersStats() {
-	var players = document.getElementsByClassName("gameover-standings-standing");
-	var playerColors = document.getElementsByClassName("gameover-standings-box-f");
+  function getPlayersStats() {
+    var players = document.getElementsByClassName("gameover-standings-standing");
+    var playerColors = document.getElementsByClassName("gameover-standings-box-f");
 
-	if (!players || !playerColors)
-		return;
+    if (!players || !playerColors)
+      return;
 
-	if (players.length < 2 || playerColors.length < 2)
-		return;
+    if (players.length < 2 || playerColors.length < 2)
+      return;
 
-	var buf = "";
-	var tmpRes = [];
-	var res = [];
-	for (var i = 0; i < players.length ; i++) {
-		var s = players[i].textContent;
-		for (var j = 0; j < s.length - 1; j++) {
-			if ([" ", "(", ")"].includes(s[j]))
-				continue;
-			buf += s[j];
-		}
-		buf = buf.split(/\r?\n/);
-		for (j = 0; j < buf.length; j++) {
-			if (buf[j] == "") {
-				continue;
-			}
+    var buf = "";
+    var tmpRes = [];
+    var res = [];
+    for (var i = 0; i < players.length; i++) {
+      var s = players[i].textContent;
+      for (var j = 0; j < s.length - 1; j++) {
+        if ([" ", "(", ")"].includes(s[j]))
+          continue;
+        buf += s[j];
+      }
+      buf = buf.split(/\r?\n/);
+      for (j = 0; j < buf.length; j++) {
+        if (buf[j] == "") {
+          continue;
+        }
 
-			tmpRes.push(buf[j]);
-		}
+        tmpRes.push(buf[j]);
+      }
 
-		if (tmpRes.length == 3)
-			res.push(tmpRes);
-		tmpRes = [];
-		buf = ""
-	}
+      if (tmpRes.length == 3)
+        res.push(tmpRes);
+      tmpRes = [];
+      buf = ""
+    }
 
-	if (res.length < 2)
-		return;
+    if (res.length < 2)
+      return;
 
-	var playerStats = [];
-	for (i = 0; i < res.length ; i++) {
-		var playerStat = {};
-		playerStat.name = res[i][0];
-		playerStat.elo = res[i][1];
-		playerStat.ratingDiff = res[i][2];
-		playerStats.push(playerStat);
-	}
+    var playerStats = [];
+    for (i = 0; i < res.length; i++) {
+      var playerStat = {};
+      playerStat.name = res[i][0];
+      playerStat.elo = res[i][1];
+      playerStat.ratingDiff = res[i][2];
+      playerStats.push(playerStat);
+    }
 
-	var color = playerColors[0].getAttribute("style")
+    var color = playerColors[0].getAttribute("style")
 
-	if (color == "background-color: rgb(184, 184, 184);") {
-		playerStats[0].color = "White";
-		playerStats[1].color = "Black";
-	} else if (color == "background-color: rgb(94, 93, 93);") {
-		playerStats[0].color = "Black";
-		playerStats[1].color = "White";
-	}
+    if (color == "background-color: rgb(184, 184, 184);") {
+      playerStats[0].color = "White";
+      playerStats[1].color = "Black";
+    }
+    else if (color == "background-color: rgb(94, 93, 93);") {
+      playerStats[0].color = "Black";
+      playerStats[1].color = "White";
+    }
 
-	return playerStats;
-}
+    return playerStats;
+  }
 
-function getTimeControl() {
-	var header = document.getElementsByClassName("board-panel-panel-header");
-	if (!header)
-		return;
+  function getTimeControl() {
+    var header = document.getElementsByClassName("board-panel-panel-header");
+    if (!header)
+      return;
 
-	var lst = header[0].textContent.split(/\r?\n/);
-	var buf = "";
-	var flag = false;
-	for (var i = 0; i < lst.length ; i++) {
-		for (var j = 0; j < lst[i].length ; j++) {
-			if (lst[i][j] != " ") {
-				flag = true;
-				buf += lst[i][j];
-			}
-		}
-		if (flag) {
-			break;
-		}
-	}
+    var lst = header[0].textContent.split(/\r?\n/);
+    var buf = "";
+    var flag = false;
+    for (var i = 0; i < lst.length; i++) {
+      for (var j = 0; j < lst[i].length; j++) {
+        if (lst[i][j] != " ") {
+          flag = true;
+          buf += lst[i][j];
+        }
+      }
+      if (flag) {
+        break;
+      }
+    }
 
-	if (!buf)
-		return;
+    if (!buf)
+      return;
 
-	buf = buf.split("");
+    buf = buf.split("");
 
-	if (buf.length != 3)
-		return;
+    if (buf.length != 3)
+      return;
 
-	if (buf[1] != "|")
-		return;
+    if (buf[1] != "|")
+      return;
 
-	var seconds, increment;
-	try {
-		seconds = parseInt(buf[0]) * 60;
-		increment = parseInt(buf[2])
-	} catch {
-	}
+    var seconds, increment;
+    try {
+      seconds = parseInt(buf[0]) * 60;
+      increment = parseInt(buf[2])
+    }
+    catch {}
 
-	return `${seconds}+${increment}`;
-}
+    return `${seconds}+${increment}`;
+  }
 
-function getPGN() {
-	var table = document.getElementsByClassName("moves-table");
+  function getPGN() {
+    var table = document.getElementsByClassName("moves-table");
 
-	if (!table)
-		return;
+    if (!table)
+      return;
 
-	table = table[0];
+    table = table[0];
 
-	if (!table)
-		return;
+    if (!table)
+      return;
 
-	var pgnRaw = table.textContent;
+    var pgnRaw = table.textContent;
     if (!pgnRaw)
-        return;
+      return;
 
-	var termIdx;
-	var termResult;
+    var termIdx;
+    var termResult;
 
-	for (var i = pgnRaw.length; i >= Math.max(pgnRaw.length - 30, 0); i--) {
-		if (["D", "R", "T", "#"].includes(pgnRaw[i]) && pgnRaw[i + 1] == " ") {
-			termIdx = i;
-			termResult = pgnRaw[termIdx];
-			if (pgnRaw[i] == "#") {
-				termIdx = i + 2;
-			}
-			break;
-		}
-	}
+    for (var i = pgnRaw.length; i >= Math.max(pgnRaw.length - 30, 0); i--) {
+      if (["D", "R", "T", "#"].includes(pgnRaw[i]) && pgnRaw[i + 1] == " ") {
+        termIdx = i;
+        termResult = pgnRaw[termIdx];
+        if (pgnRaw[i] == "#") {
+          termIdx = i + 2;
+        }
+        break;
+      }
+    }
 
     var threefoldMsg = "Game over (threefold repetition)";
 
     if (pgnRaw.includes(threefoldMsg)) {
-        pgnRaw = pgnRaw.substring(0, pgnRaw.length - threefoldMsg.length);
-        termResult = "D";
+      pgnRaw = pgnRaw.substring(0, pgnRaw.length - threefoldMsg.length);
+      termResult = "D";
     }
 
-	var pgn = pgnRaw;
+    var pgn = pgnRaw;
 
+    if (termIdx) {
+      pgn = pgn.slice(0, termIdx - 1);
+    }
 
-	if (termIdx) {
-		pgn = pgn.slice(0, termIdx - 1);
-	}
+    var termColorIdx;
+    var termColor;
 
-	var termColorIdx;
-	var termColor;
+    for (i = pgn.length - 1; i > Math.max(pgn.length - 30, 0); i--) {
+      var c = pgn[i];
 
-	for (i = pgn.length - 1; i > Math.max(pgn.length - 30, 0); i--) {
-		var c = pgn[i];
+      c = c.charCodeAt();
+      if (![10, 32].includes(c)) {
+        termColor = "Black";
+        termColorIdx = i - 1;
+        break;
+      }
 
-        c = c.charCodeAt();
-		if (![10, 32].includes(c)) {
-			termColor = "Black";
-			termColorIdx = i - 1;
-			break;
-		}
+      if (c == 10) {
+        termColor = "White";
+        termColorIdx = i - 1;
+        break;
+      }
+    }
 
-		if (c == 10) {
-			termColor = "White";
-			termColorIdx = i - 1;
-			break;
-		}
-	}
+    var pgnStruct = {};
 
-	var pgnStruct = {};
+    var playerStats = getPlayersStats();
 
-	var playerStats = getPlayersStats();
+    pgnStruct.pgn = pgn;
+    pgnStruct.termIdx = termIdx;
+    pgnStruct.termResult = termResult;
+    pgnStruct.termColorIdx = termColorIdx;
+    pgnStruct.termColor = termColor;
 
-	pgnStruct.pgn = pgn;
-	pgnStruct.termIdx = termIdx;
-	pgnStruct.termResult = termResult;
-	pgnStruct.termColorIdx = termColorIdx;
-	pgnStruct.termColor = termColor;
+    return pgnStruct;
+  }
 
-	return pgnStruct;
-}
+  function getPGNStr() {
+    var gameUrl, date, white, black, whiteElo, blackElo,
+      whiteRatingDiff, blackRatingDiff, result, timeControl;
 
-function getPGNStr() {
-	var gameUrl, date, white, black, whiteElo, blackElo,
-		whiteRatingDiff, blackRatingDiff, result, timeControl;
+    gameUrl = window.location.href;
+    var pgn = getPGN();
+    var playerStats = getPlayersStats();
 
-	gameUrl = window.location.href;
-	var pgn = getPGN();
-	var playerStats = getPlayersStats();
+    if (!pgn || !playerStats)
+      return;
 
-	if (!pgn || !playerStats)
-		return;
+    if (!playerStats[0].color || !playerStats[1].color)
+      return;
 
-	if (!playerStats[0].color || !playerStats[1].color)
-		return;
+    var whiteColorIdx, blackColorIdx;
+    if (playerStats[0].color == "White") {
+      whiteColorIdx = 0;
+      blackColorIdx = 1;
+    }
+    else {
+      whiteColorIdx = 1;
+      blackColorIdx = 0;
+    }
 
-	var whiteColorIdx, blackColorIdx;
-	if (playerStats[0].color == "White") {
-		whiteColorIdx = 0;
-		blackColorIdx = 1;
-	} else {
-		whiteColorIdx = 1;
-		blackColorIdx = 0;
-	}
+    white = playerStats[whiteColorIdx].name;
+    whiteElo = playerStats[whiteColorIdx].elo;
+    whiteRatingDiff = playerStats[whiteColorIdx].ratingDiff;
+    black = playerStats[blackColorIdx].name;
+    blackElo = playerStats[blackColorIdx].elo;
+    blackRatingDiff = playerStats[blackColorIdx].ratingDiff;
 
-	white = playerStats[whiteColorIdx].name;
-	whiteElo = playerStats[whiteColorIdx].elo;
-	whiteRatingDiff = playerStats[whiteColorIdx].ratingDiff;
-	black = playerStats[blackColorIdx].name;
-	blackElo = playerStats[blackColorIdx].elo;
-	blackRatingDiff = playerStats[blackColorIdx].ratingDiff;
+    if (["T", "R"].includes(pgn.termResult)) {
+      if (pgn.termColor == "White")
+        result = "0-1";
+      else
+        result = "1-0";
+    }
+    else if (pgn.termResult == "D") {
+      result = "1/2-1/2";
+    }
+    else if (pgn.termResult == "#") {
+      if (pgn.termColor == "White")
+        result = "1-0";
+      else
+        result = "0-1";
+    }
 
-	if (["T", "R"].includes(pgn.termResult)) {
-		if (pgn.termColor == "White")
-			result = "0-1";
-		else
-			result = "1-0";
-	} else if (pgn.termResult == "D") {
-		result = "1/2-1/2";
-	} else if (pgn.termResult == "#") {
-		if (pgn.termColor == "White")
-			result = "1-0";
-		else
-			result = "0-1";
-	}
+    timeControl = getTimeControl();
 
-	timeControl = getTimeControl();
+    var terminationComment = "{ Game ends by variant rule. }";
 
-	var terminationComment = "{ Game ends by variant rule. }";
+    if (pgn.termResult == "T") {
+      terminationComment = `{ ${pgn.termColor} wins on time. }`;
+    }
+    else if (pgn.termResult == "R") {
+      terminationComment = `{ ${pgn.termColor} resigns. }`;
+    }
+    else if (pgn.termResult == "D") {
+      terminationComment = `{ The game is a draw. }`;
+    }
 
-	if (pgn.termResult == "T") {
-		terminationComment = `{ ${pgn.termColor} wins on time. }`;
-	} else if (pgn.termResult == "R") {
-		terminationComment = `{ ${pgn.termColor} resigns. }`;
-	} else if (pgn.termResult == "D") {
-		terminationComment = `{ The game is a draw. }`;
-	}
+    var termination = "Normal";
 
-	var termination = "Normal";
+    if (pgn.termResult == "T")
+      termination = "Time forfeit";
 
-	if (pgn.termResult == "T")
-		termination = "Time forfeit";
+    var pgnText = pgn.pgn;
 
-	var pgnText = pgn.pgn;
-
-	var template = `[Event "Rated Atomic game (${gameUrl})"]
+    var template = `[Event "Rated Atomic game (${gameUrl})"]
 [White "${white}"]
 [Black "${black}"]
 [WhiteElo "${whiteElo}"]
@@ -276,104 +281,102 @@ function getPGNStr() {
 ${pgnText} ${terminationComment} ${result}
 `;
 
-	return template;
-}
+    return template;
+  }
 
+  function downloadPGN() {
+    var ffButton = document.getElementsByClassName("chevron-next")[0];
+    //var ffButton = $(".chevron-next")
 
+    ffButton.click();
+    var _downloadPGN = function () {
+      var playerStats = document.getElementsByClassName("gameover-standings-standing");
 
-function downloadPGN() {
-	var ffButton = document.getElementsByClassName("chevron-next")[0];
-	//var ffButton = $(".chevron-next")
+      if (!playerStats) {
+        setTimeout(_downloadPGN, 100);
+        console.log("waiting for playerStats");
+        return;
+      }
 
-	ffButton.click();
-	var _downloadPGN = function() {
-		var playerStats = document.getElementsByClassName("gameover-standings-standing");
+      var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      var blob = new Blob([getPGNStr()], {
+          type: "octet/stream"
+        }),
+        url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = "game.pgn";
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    }
 
-		if (!playerStats) {
-			setTimeout(_downloadPGN, 100);
-			console.log("waiting for playerStats");
-			return;
-		}
+    setTimeout(_downloadPGN, 100);
+  }
 
-		var a = document.createElement("a");
-		document.body.appendChild(a);
-		a.style = "display: none";
-		var blob = new Blob([getPGNStr()], {type: "octet/stream"}),
-			url = window.URL.createObjectURL(blob);
-		a.href = url;
-		a.download = "game.pgn";
-		a.click();
-		a.remove();
-		window.URL.revokeObjectURL(url);
-	}
+  var isButtonAdded = false;
+  var button;
 
-	setTimeout(_downloadPGN, 100);
-}
+  function start() {
+    if (window.location.href.indexOf('chess.com/variants/atomic/game/') === -1)
+      return;
+    console.log("start");
 
+    var playerStats = document.getElementsByClassName("gameover-standings-standing");
+    var panel = document.getElementsByClassName("moves-controls-row");
+    if (panel.length < 2)
+      return;
 
-var isButtonAdded = false;
-var button;
+    if (!playerStats || !panel) {
+      //console.log(`playerStats ${playerStats} panel ${panel}`)
+      if (isButtonAdded) {
+        //console.log(`playerStats ${playerStats} panel ${panel}`)
+        //button.setAttribute("")
+        //button.setAttribute("disabled", true);
+      }
+      return;
+    }
+    else if (playerStats && isButtonAdded) {
+      //console.log(`playerStats ${playerStats} panel ${panel}`)
+      //button.setAttribute("")
+      //button.setAttribute("disabled", false);
+    }
 
-function start() {
-	if (window.location.href.indexOf('chess.com/variants/atomic/game/') === -1)
-		return;
-	console.log("start");
+    if (!isButtonAdded) {
+      button = document.createElement('div');
+      button.innerHTML = `<div class="moves-btn-icon moves-reset">
+    <span class="moves-icon icon-font-chess download icon-font-neutral" onclick="downloadPGN(); return false">
+    </span></div>`;
+      panel[0].appendChild(button);
 
-	var playerStats = document.getElementsByClassName("gameover-standings-standing");
-	var panel = document.getElementsByClassName("moves-controls-row");
-	if (panel.length < 2)
-		return;
+      //console.log("inject script");
+      var script = document.createElement('script');
+      script.appendChild(document.createTextNode(getPlayersStats.toString()));
+      script.appendChild(document.createTextNode(getTimeControl.toString()));
+      script.appendChild(document.createTextNode(getPGN.toString()));
+      script.appendChild(document.createTextNode(getPGNStr.toString()));
+      script.appendChild(document.createTextNode(downloadPGN.toString()));
+      //console.log(script);
+      (document.body || document.head || document.documentElement).appendChild(script);
 
-	if (!playerStats || !panel) {
-		//console.log(`playerStats ${playerStats} panel ${panel}`)
-		if (isButtonAdded) {
-			//console.log(`playerStats ${playerStats} panel ${panel}`)
-			//button.setAttribute("")
-			//button.setAttribute("disabled", true);
-		}
-		return;
-	} else if (playerStats && isButtonAdded) {
-		//console.log(`playerStats ${playerStats} panel ${panel}`)
-		//button.setAttribute("")
-		//button.setAttribute("disabled", false);
-	}
+      isButtonAdded = true;
+    }
 
+    //getPGNStr();
+  }
 
-	if (!isButtonAdded) {
-		button = document.createElement('div');
-		button.innerHTML = `<div class="moves-btn-icon moves-reset">
-		<span class="moves-icon icon-font-chess download icon-font-neutral" onclick="downloadPGN(); return false">
-		</span></div>`;
-		panel[0].appendChild(button);
-
-		//console.log("inject script");
-		var script = document.createElement('script');
-		script.appendChild(document.createTextNode(getPlayersStats.toString()));
-		script.appendChild(document.createTextNode(getTimeControl.toString()));
-		script.appendChild(document.createTextNode(getPGN.toString()));
-		script.appendChild(document.createTextNode(getPGNStr.toString()));
-		script.appendChild(document.createTextNode(downloadPGN.toString()));
-		//console.log(script);
-		(document.body || document.head || document.documentElement).appendChild(script);
-
-		isButtonAdded = true;
-	}
-
-	//getPGNStr();
-}
-
-    var target = document.body;
-    var config = {
-      attributes: true,
-      attributeOldValue: true,
-      characterData: true,
-      characterDataOldValue: true,
-      childList: true,
-      subtree: true
-    };
+  var target = document.body;
+  var config = {
+    attributes: true,
+    attributeOldValue: true,
+    characterData: true,
+    characterDataOldValue: true,
+    childList: true,
+    subtree: true
+  };
 
   var observer = new MutationObserver(start);
   observer.observe(target, config);
-
 
 })();
