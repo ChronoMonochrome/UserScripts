@@ -3,7 +3,7 @@
 // @name        Atomic PGN Downloader
 // @namespace   https://github.com/ChronoMonochrome/UserScripts
 // @description An addon for chess.com to download Atomic chess variant PGNs and convert to Lichess compatible format
-// @version     0.1.1
+// @version     0.1.2
 // @author      Chrono
 // @copyright   2021+, Victor Shilin aka Chrono
 // @license     MIT
