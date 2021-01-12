@@ -140,7 +140,7 @@
     var termResult;
 
     for (var i = pgnRaw.length; i >= Math.max(pgnRaw.length - 30, 0); i--) {
-      if (["D", "R", "T", "#"].includes(pgnRaw[i]) && pgnRaw[i + 1] == " ") {
+      if (["D", "R", "S", "T", "#"].includes(pgnRaw[i]) && pgnRaw[i + 1] == " ") {
         termIdx = i;
         termResult = pgnRaw[termIdx];
         if (pgnRaw[i] == "#") {
@@ -154,13 +154,6 @@
 
     if (pgnRaw.includes(threefoldMsg)) {
       pgnRaw = pgnRaw.substring(0, pgnRaw.length - threefoldMsg.length);
-      termResult = "D";
-    }
-
-    var stalemateMsg = "S   Stalemate • ½-½";
-
-    if (pgnRaw.includes(stalemateMsg)) {
-      pgnRaw = pgnRaw.substring(0, pgnRaw.length - stalemateMsg.length);
       termResult = "D";
     }
 
@@ -240,7 +233,7 @@
       else
         result = "1-0";
     }
-    else if (pgn.termResult == "D") {
+    else if (["D", "S"].includes(pgn.termResult)) {
       result = "1/2-1/2";
     }
     else if (pgn.termResult == "#") {
@@ -260,7 +253,7 @@
     else if (pgn.termResult == "R") {
       terminationComment = `{ ${pgn.termColor} resigns. }`;
     }
-    else if (pgn.termResult == "D") {
+    else if (["D", "S"].includes(pgn.termResult)) {
       terminationComment = `{ The game is a draw. }`;
     }
 
