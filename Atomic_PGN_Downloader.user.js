@@ -3,7 +3,7 @@
 // @name        Atomic PGN Downloader
 // @namespace   https://github.com/ChronoMonochrome/UserScripts
 // @description An addon for chess.com to download Atomic chess variant PGNs and convert to Lichess compatible format
-// @version     0.1.2
+// @version     0.1.3
 // @author      Chrono
 // @copyright   2021+, Victor Shilin aka Chrono
 // @license     MIT
@@ -139,7 +139,7 @@
     var termIdx;
     var termResult;
 
-    for (var i = pgnRaw.length; i >= Math.max(pgnRaw.length - 30, 0); i--) {
+    for (var i = pgnRaw.length; i > 0; i--) {
       if (["D", "R", "S", "T", "#"].includes(pgnRaw[i]) && pgnRaw[i + 1] == " ") {
         termIdx = i;
         termResult = pgnRaw[termIdx];
@@ -166,7 +166,7 @@
     var termColorIdx;
     var termColor;
 
-    for (i = pgn.length - 1; i > Math.max(pgn.length - 30, 0); i--) {
+    for (i = pgn.length - 1; i > 0; i--) {
       var c = pgn[i];
 
       c = c.charCodeAt();
